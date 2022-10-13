@@ -198,5 +198,12 @@ func (app *App) fetchPayload(uuid string) (EncryptPayload, error) {
 	// Get the TTL
 	out.Expiry = app.redis.TTL(ctx, uuid).Val() / time.Second
 
+	// Remove the key if max access has reached.
+	if out.AccessCount <= 0 {
+		if err := app.redis.Del(ctx, uuid).Err(); err != nil {
+			return out, err
+		}
+	}
+
 	return out, nil
 }

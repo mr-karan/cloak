@@ -4,8 +4,8 @@ services:
   redis:
     container_name: redis
     image: redis:7
-    expose:
-      - 6379
+    ports:
+      - 6379:6379
     networks:
       - cloak
 
@@ -18,8 +18,8 @@ services:
       - CLOAK_REDIS__address=redis:6379
     command:
       - "--config=config.toml"
-    expose:
-      - 7000
+    ports:
+      - 7000:7000
     restart: unless-stopped
     networks:
       - cloak
