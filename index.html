@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Cloak | Securely send sensitive text</title>
+  <meta name="description" content="Encrypt sensitive text like passwords, API tokens or anything secret">
+  <meta name="author" content="Karan Sharma">
+  <meta name="keywords" content="secret,password,token,share">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.min.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/sodium.js"></script>
+</head>
+
+<body>
+  <section class="container">
+    <header>
+      <h1><a href="/">Cloak</a></h1>
+      <p>🔑 Securely encrypt your secret text and generate a link to share.</p>
+    </header>
+    <div class="encrypt">
+      <form method="post" id="encrypt-form">
+        <div class="input">
+          <label for="password">Type your secret text</label>
+          <textarea autofocus id="password" minlength="1" maxlength="99999"></textarea>
+          <div class="advanced">
+            <div class="field">
+              <label for="expiry">Expiry</label>
+              <select id="expiry" name="expiry">
+                <option default value=3600>1 hour</option>
+                <option default value=21600>6 hours</option>
+                <option default value=43200>12 hours</option>
+                <option default value=86400>1 day</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="access">Access Count</label>
+              <input type="number" id="access" name="access" value=1 step=1 min=1 max=10>
+            </div>
+          </div>
+          <div class="submit">
+            <button type="submit">Generate Link</button>
+            <p></p>
+          </div>
+        </div>
+      </form>
+      <div class="share hidden">
+        <input id="share-link" type="text" readonly>
+        <button onclick="copy('#share-link')">Copy</button>
+      </div>
+    </div>
+
+    <div class="decrypt hidden">
+      <div class="view-secret">
+        <h3>📥 You have received a secret message</h3>
+        <button onclick="decrypt()">View Secret</button>
+      </div>
+      <div class="secret-result hidden">
+        <textarea readonly id="view-plaintext"></textarea>
+        <button onclick="copy('#view-plaintext')">Copy</button>
+        <br />
+        <p class="info"></p>
+      </div>
+      <div class="error hidden">
+        <p class="detail"></p>
+      </div>
+    </div>
+
+    <div class="works box">
+      <h3>✍️ How it works</h3>
+      <ul>
+        <li>The message is encrypted in client side using <a
+            href="https://nacl.cr.yp.to/secretbox.html">XSalsa20Poly1305</a> authenticated encryption cipher.</li>
+        <li>A unique key is generated to encrypt the message. This key is <b>never</b> sent to the backend server.</li>
+        <li>The encrypted message packet is stored in backend with a unique UUID.</li>
+        <li>A shareable link is generated which contains the UUID for the encrypted message. The secret key is a part of
+          this URL as a hash parameter which ensures that the backend server never receives it.
+        </li>
+        <li>The encrypted message is only valid until the user-defined TTL expires or it has been accessed till the
+          access count has reached the max limit.</li>
+      </ul>
+      <a href="https://github.com/mr-karan/cloak" target="_blank" rel="noopener noreferrer">View the source</a>
+    </div>
+
+
+  </section>
+  <script src="/assets/script.js"></script>
+</body>
+
+</html>

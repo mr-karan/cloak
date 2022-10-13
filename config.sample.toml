@@ -1,0 +1,9 @@
+[redis]
+address = "localhost:6379"
+db = 0
+password = ""
+
+[server]
+address = "0.0.0.0:7000"
+timeout = "7s"
+idle_timeout = "30s"
