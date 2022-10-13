@@ -35,6 +35,8 @@ func main() {
 		lo.Panic(err)
 	}
 
+	lo.Printf("booting cloak: %s\n", buildString)
+
 	// Initialise connection.
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     ko.String("redis.address"),
@@ -43,7 +45,7 @@ func main() {
 	})
 
 	if err := rdb.Ping(context.Background()).Err(); err != nil {
-		lo.Fatalf("unable to reach redis: %s", ko.String("redis.address"))
+		lo.Fatalf("unable to reach redis on %s: %v", ko.String("redis.address"), err)
 	}
 
 	app := &App{

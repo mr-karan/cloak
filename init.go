@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"
+	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	flag "github.com/spf13/pflag"
 )
@@ -33,6 +35,13 @@ func initConfig() (*koanf.Koanf, error) {
 	}
 
 	err = ko.Load(file.Provider(*cfgPath), toml.Parser())
+	if err != nil {
+		return nil, err
+	}
+	err = ko.Load(env.Provider("CLOAK_", ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, "CLOAK_")), "__", ".", -1)
+	}), nil)
 	if err != nil {
 		return nil, err
 	}

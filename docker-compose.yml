@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  redis:
+    container_name: redis
+    image: redis:7
+    expose:
+      - 6379
+    networks:
+      - cloak
+
+  cloak:
+    depends_on:
+      - redis
+    container_name: cloak
+    image: ghcr.io/mr-karan/cloak:latest
+    environment:
+      - CLOAK_REDIS__address=redis:6379
+    command:
+      - "--config=config.toml"
+    expose:
+      - 7000
+    restart: unless-stopped
+    networks:
+      - cloak
+
+networks:
+  cloak:
+    name: cloak
