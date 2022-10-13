@@ -35,6 +35,8 @@ func main() {
 		lo.Panic(err)
 	}
 
+	lo.Printf("booting cloak: %s\n", buildString)
+
 	// Initialise connection.
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     ko.String("redis.address"),
