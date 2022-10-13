@@ -76,3 +76,9 @@ header h1 a {
 .error .detail {
     color: #e91e63;
 }
+
+@media(max-width:650px) {
+    #share-link {
+        width: 60%;
+    }
+}

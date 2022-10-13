@@ -6,15 +6,12 @@ builds:
   - binary: cloak.bin
     id: cloak
     goos:
-      - windows
-      - darwin
       - linux
     goarch:
       - amd64
-      - arm64
     ldflags:
       - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }})"
-    dir: ./cmd/
+    dir: ./
 
 archives:
   - format: tar.gz
@@ -22,7 +19,6 @@ archives:
       - README.md
       - LICENSE
       - config.sample.toml
-      - static/
 
 dockers:
   - # ID of the image, needed if you want to filter by it later on (e.g. on custom publishers).
@@ -81,4 +77,3 @@ dockers:
     # and use wildcards when you `COPY`/`ADD` in your Dockerfile.
     extra_files:
       - config.sample.toml
-      - static/

@@ -16,9 +16,8 @@ import (
 
 var (
 	// Version and date of the build. This is injected at build-time.
-	buildVersion = "unknown"
-	buildDate    = "unknown"
-	lo           = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+	buildString = "unknown"
+	lo          = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 	//go:embed assets/*
 	assetsDir embed.FS
 	//go:embed index.html
