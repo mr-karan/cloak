@@ -9,21 +9,10 @@ const $hide = (el) => {
 
 const apiURL = '/api/';
 
-const sodiumReady = window.sodium.ready;
-sodiumReady.then(() => {
-    window.sodiumReady = true
-});
-
-
-function isSodiumReady() {
-    if (window.sodiumReady === false) {
-        window.setTimeout(isSodiumReady, 50)
-    }
-}
-
-(function () {
+(async function () {
     // libsodium uses Promise to signal whenever `sodium` object is ready to use.
-    isSodiumReady();
+    await window.sodium.ready;
+
     // Based on the URL determine whether to show encrypt or decrypt section.
     if (window.location.hash.substring(1)) {
         $hide($('.encrypt'))
