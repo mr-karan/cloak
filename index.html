@@ -47,9 +47,8 @@
           </div>
           <div class="row">
             <div class="field">
-              <label for="passphrase-encrypt">Passphrase</label>
-              <input required type="password" id="passphrase-encrypt" name="passphrase-encrypt" minlength="6"
-                maxlength="64">
+              <label for="passphrase-encrypt">(Optional) Passphrase</label>
+              <input type="password" id="passphrase-encrypt" name="passphrase-encrypt" minlength="6" maxlength="64">
             </div>
           </div>
           <div class="submit">
@@ -72,9 +71,8 @@
         <h3>📥 You have received a secret message</h3>
         <form method="post" id="decrypt-form">
           <div class="pass-input">
-            <label for="passphrase-decrypt">To view the secret, enter the passphrase:</label>
-            <input required type="password" id="passphrase-decrypt" name="passphrase-decrypt" minlength="6"
-              maxlength="64">
+            <label for="passphrase-decrypt">If the secret is sealed with a passphrase enter it:</label>
+            <input type="password" id="passphrase-decrypt" name="passphrase-decrypt" minlength="6" maxlength="64">
           </div>
           <div class="submit">
             <button type="submit">View Secret</button>

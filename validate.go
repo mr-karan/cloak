@@ -31,6 +31,9 @@ func (enc *LookupPayload) Validate() error {
 }
 
 func isValidPassphrase(p string) error {
+	if p == "" {
+		return nil
+	}
 	if (len(p) > MaxPassphraseLen) || (len(p) < MinPassphraseLen) {
 		return fmt.Errorf("Passphrase length should be between %d and %d characters", MinPassphraseLen, MaxPassphraseLen)
 	}
