@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.min.css">
   <link rel="stylesheet" href="/assets/style.css">
   <script src="/assets/sodium.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js" defer></script>
 </head>
 
 <body>
@@ -47,7 +48,7 @@
           </div>
           <div class="row">
             <div class="field">
-              <label for="passphrase-encrypt">(Optional) Passphrase</label>
+              <label for="passphrase-encrypt">Passphrase (Optional but recommended)</label>
               <input type="password" id="passphrase-encrypt" name="passphrase-encrypt" minlength="6" maxlength="64">
             </div>
           </div>
@@ -63,6 +64,7 @@
       <div class="share hidden">
         <input id="share-link" type="text" readonly>
         <button onclick="copy('#share-link')">Copy</button>
+        <div id="qrcode"></div>
       </div>
     </div>
 

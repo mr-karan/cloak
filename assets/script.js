@@ -89,7 +89,19 @@ function encrypt() {
         $hide($('.works'))
         const shareLink = $('.share')
         $show(shareLink)
-        shareLink.querySelector('#share-link').value = `${window.location.origin}/share/${data.data.uuid}#${sodium.to_hex(key)}`
+
+        let genURL = `${window.location.origin}/share/${data.data.uuid}#${sodium.to_hex(key)}`
+        shareLink.querySelector('#share-link').value = genURL
+
+        // Display QR Code.
+        const qrcode = new QRCode(document.getElementById('qrcode'), {
+            text: genURL,
+            width: 128,
+            height: 128,
+            colorDark: '#000',
+            colorLight: '#fff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
     })
         .catch(e => {
             let errMsg = $('.encrypt .error .detail')

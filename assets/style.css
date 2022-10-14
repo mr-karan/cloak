@@ -93,6 +93,10 @@ header h1 a {
     margin: 5px 10px 5px 0;
 }
 
+#qrcode img {
+    margin: 20px auto;
+}
+
 @media(max-width:650px) {
     #share-link {
         width: 60%;
