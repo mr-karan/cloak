@@ -28,9 +28,9 @@
     <div class="encrypt">
       <form method="post" id="encrypt-form">
         <div class="input">
-          <label for="password">Type your secret text</label>
-          <textarea autofocus id="password" minlength="1" maxlength="99999"></textarea>
-          <div class="advanced">
+          <label for="secret">Type your secret text</label>
+          <textarea autofocus id="secret" minlength="1" maxlength="99999"></textarea>
+          <div class="row">
             <div class="field">
               <label for="expiry">Expiry</label>
               <select id="expiry" name="expiry">
@@ -45,12 +45,22 @@
               <input type="number" id="access" name="access" value=1 step=1 min=1 max=10>
             </div>
           </div>
+          <div class="row">
+            <div class="field">
+              <label for="passphrase-encrypt">Passphrase</label>
+              <input required type="password" id="passphrase-encrypt" name="passphrase-encrypt" minlength="6"
+                maxlength="64">
+            </div>
+          </div>
           <div class="submit">
             <button type="submit">Generate Link</button>
             <p></p>
           </div>
         </div>
       </form>
+      <div class="error hidden">
+        <p class="detail"></p>
+      </div>
       <div class="share hidden">
         <input id="share-link" type="text" readonly>
         <button onclick="copy('#share-link')">Copy</button>
@@ -60,7 +70,17 @@
     <div class="decrypt hidden">
       <div class="view-secret">
         <h3>📥 You have received a secret message</h3>
-        <button onclick="decrypt()">View Secret</button>
+        <form method="post" id="decrypt-form">
+          <div class="pass-input">
+            <label for="passphrase-decrypt">To view the secret, enter the passphrase:</label>
+            <input required type="password" id="passphrase-decrypt" name="passphrase-decrypt" minlength="6"
+              maxlength="64">
+          </div>
+          <div class="submit">
+            <button type="submit">View Secret</button>
+            <p></p>
+          </div>
+        </form>
       </div>
       <div class="secret-result hidden">
         <textarea readonly id="view-plaintext"></textarea>

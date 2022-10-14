@@ -8,29 +8,23 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
 type EncryptPayload struct {
 	Message     string        `json:"message" redis:"message"`
+	Passphrase  string        `json:"passphrase" redis:"passphrase"`
 	AccessCount int           `json:"access_count" redis:"access_count"`
 	Expiry      time.Duration `json:"expiry"`
 }
 
-func (enc *EncryptPayload) Validate() error {
-	// Max expiry shouldn't exceed 7 days
-	if enc.Expiry > 86400*7 {
-		return fmt.Errorf("expiry exceeds the max allowed limit")
-	}
-	if enc.AccessCount > 30 {
-		return fmt.Errorf("access_count exceeds the max allowed limit")
-	}
-	return nil
-}
-
 type EncryptPayloadOut struct {
 	UUID string `json:"uuid"`
+}
+
+type LookupPayload struct {
+	UUID       string `json:"uuid"`
+	Passphrase string `json:"passphrase"`
 }
 
 // wrap is a middleware that wraps HTTP handlers and injects the "app" context.
@@ -137,30 +131,64 @@ func handleEncrypt(w http.ResponseWriter, r *http.Request) {
 // Handler for looking up encrypted payload.
 func handleLookup(w http.ResponseWriter, r *http.Request) {
 	var (
-		app  = r.Context().Value("app").(*App)
-		uuid = chi.URLParam(r, "uuid")
+		app = r.Context().Value("app").(*App)
 	)
 
+	b, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		lo.Printf("error reading request body: %v", err)
+		sendErrorResponse(w, "Invalid JSON payload", http.StatusBadRequest, nil)
+		return
+	}
+	var payload LookupPayload
+	if err := json.Unmarshal(b, &payload); err != nil {
+		lo.Printf("error unmarshalling payload: %v\n", err)
+		sendErrorResponse(w, "Invalid JSON payload", http.StatusBadRequest, nil)
+		return
+	}
+
+	if err := payload.Validate(); err != nil {
+		sendErrorResponse(w, err.Error(), http.StatusBadRequest, nil)
+		return
+	}
+
 	// Lookup for the key.
-	data, err := app.fetchPayload(uuid)
+	data, err := app.fetchPayload(payload.UUID)
 	if err != nil {
 		lo.Printf("error fetching payload: %v\n", err)
 		sendErrorResponse(w, "Error fetching message", http.StatusInternalServerError, nil)
 		return
 	}
+	// Check if passphrase is valid.
+	if data.Passphrase != payload.Passphrase {
+		sendErrorResponse(w, "Incorrect passphrase", http.StatusBadRequest, nil)
+		return
+	}
+
 	// Check the access count.
-	if data.AccessCount < 0 {
+	if data.AccessCount <= 0 {
 		sendErrorResponse(w, "Max attempts reached", http.StatusBadRequest, nil)
 		return
 	}
 
+	// Decrement the access counter for the key once lookup is done.
+	if err := app.decrementAccess(payload.UUID, data); err != nil {
+		lo.Printf("error modifying payload in redis: %v\n", err)
+		sendErrorResponse(w, "Error fetching message", http.StatusInternalServerError, nil)
+		return
+	}
+	data.AccessCount--
+
 	sendResponse(w, http.StatusOK, data)
 }
 
+// storePayload stores the encrypted message and it's attributes as fields in a hashmap
+// with a unique UUID as the key for lookup.
 func (app *App) storePayload(uuid string, payload EncryptPayload) error {
 	ctx := context.Background()
 
-	if err := app.redis.HSet(ctx, uuid, "message", payload.Message).Err(); err != nil {
+	if err := app.redis.HSet(ctx, uuid, "message", payload.Message, "passphrase", payload.Passphrase).Err(); err != nil {
 		return err
 	}
 	if err := app.redis.HIncrBy(ctx, uuid, "access_count", int64(payload.AccessCount)).Err(); err != nil {
@@ -173,6 +201,8 @@ func (app *App) storePayload(uuid string, payload EncryptPayload) error {
 	return nil
 }
 
+// fetchPayload looks up for the encrypted message using UUID as the key
+// and returns all fields for the given key.
 func (app *App) fetchPayload(uuid string) (EncryptPayload, error) {
 	ctx := context.Background()
 	var out EncryptPayload
@@ -180,11 +210,6 @@ func (app *App) fetchPayload(uuid string) (EncryptPayload, error) {
 	// Check if key exists.
 	if !app.redis.HExists(ctx, uuid, "message").Val() {
 		return out, fmt.Errorf("no message stored for uuid: %s", uuid)
-	}
-
-	// Decrement the access count.
-	if err := app.redis.HIncrBy(ctx, uuid, "access_count", int64(-1)).Err(); err != nil {
-		return out, err
 	}
 
 	// Scan the keys in the struct.
@@ -195,12 +220,25 @@ func (app *App) fetchPayload(uuid string) (EncryptPayload, error) {
 	// Get the TTL
 	out.Expiry = app.redis.TTL(ctx, uuid).Val() / time.Second
 
+	return out, nil
+}
+
+// decrementAccess decrements the access count for a given key.
+// It also checks if the access count has reached less than 0 and then
+// purges the key from redis.
+func (app *App) decrementAccess(uuid string, payload EncryptPayload) error {
+	ctx := context.Background()
+
+	// Decrement the access count.
+	if err := app.redis.HIncrBy(ctx, uuid, "access_count", int64(-1)).Err(); err != nil {
+		return err
+	}
 	// Remove the key if max access has reached.
-	if out.AccessCount <= 0 {
+	if payload.AccessCount <= 0 {
 		if err := app.redis.Del(ctx, uuid).Err(); err != nil {
-			return out, err
+			return err
 		}
 	}
 
-	return out, nil
+	return nil
 }

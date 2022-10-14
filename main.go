@@ -75,7 +75,7 @@ func main() {
 
 	// API Handlers.
 	r.Post("/api/encrypt", wrap(app, handleEncrypt))
-	r.Get("/api/lookup/{uuid}", wrap(app, handleLookup))
+	r.Post("/api/lookup", wrap(app, handleLookup))
 
 	// HTTP Server.
 	srv := &http.Server{

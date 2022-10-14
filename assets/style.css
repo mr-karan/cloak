@@ -60,21 +60,37 @@ header h1 a {
     width: 100%;
 }
 
-.advanced {
+.row {
     display: flex;
     margin-bottom: 15px;
 }
 
-.advanced .field {
+.row .field {
     flex: 50%;
-}
-
-.advanced .field:last-child {
-    margin-left: 30px;
 }
 
 .error .detail {
     color: #e91e63;
+}
+
+.view-secret button {
+    margin-top: 2rem;
+}
+
+.pass-input {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+
+.pass-input label {
+    margin: 5px 10px 5px 0;
+}
+
+.pass-input input {
+    display: flex;
+    vertical-align: middle;
+    margin: 5px 10px 5px 0;
 }
 
 @media(max-width:650px) {

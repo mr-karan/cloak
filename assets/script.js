@@ -27,7 +27,7 @@ const apiURL = '/api/';
     $('#encrypt-form').onsubmit = async (e) => {
         e.preventDefault();
 
-        const msg = $('.submit p');
+        const msg = $('.encrypt .submit p');
         $hide(msg);
 
         try {
@@ -38,13 +38,33 @@ const apiURL = '/api/';
             throw e;
         }
     };
+
+    // Capture the form submit.
+    $('#decrypt-form').onsubmit = async (e) => {
+        e.preventDefault();
+
+        const msg = $('.decrypt .submit p');
+        $hide(msg);
+
+        try {
+            await decrypt();
+        } catch (e) {
+            msg.innerText = e.toString();
+            $show(msg);
+            throw e;
+        }
+    };
 })();
 
 
 function encrypt() {
-    const msg = $('textarea[id=password]').value,
+    // Reset any error fields.
+    $hide($('.encrypt .error'));
+
+    const msg = $('textarea[id=secret]').value,
         expiry = $('select[name=expiry]').value,
-        access = $('input[name=access]').value;
+        access = $('input[name=access]').value,
+        passphrase = $('input[name=passphrase-encrypt]').value
 
     const key = sodium.from_hex('724b092810ec86d7e35c9d067702b31ef90bc43a7b598626749914d6a3e033ed');
     const nonce = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
@@ -55,7 +75,7 @@ function encrypt() {
     fetch(apiURL + 'encrypt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: sodium.to_hex(enc), expiry: parseInt(expiry), access_count: parseInt(access) })
+        body: JSON.stringify({ message: sodium.to_hex(enc), expiry: parseInt(expiry), access_count: parseInt(access), passphrase: passphrase })
     }).then(async response => {
         const data = await response.json();
         // check for error response
@@ -71,12 +91,19 @@ function encrypt() {
         $show(shareLink)
         shareLink.querySelector('#share-link').value = `${window.location.origin}/share/${data.data.uuid}#${sodium.to_hex(key)}`
     })
-        .catch(error => {
-            return error
+        .catch(e => {
+            let errMsg = $('.encrypt .error .detail')
+            errMsg.innerText = e.toString();
+            $show($('.encrypt .error'));
+            throw e;
         })
 }
 
 function decrypt() {
+    // Reset any error fields.
+    $hide($('.decrypt .error'));
+
+    const passphrase = $('input[name=passphrase-decrypt]').value;
     // Get the UUID from the URL
     const uuid = window.location.pathname.split("/share/")[1]
     const hashKey = window.location.hash.substring(1)
@@ -85,9 +112,10 @@ function decrypt() {
     }
 
     // Lookup for the encrypted message in backend
-    fetch(apiURL + `lookup/${uuid}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+    fetch(apiURL + `lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: uuid, passphrase: passphrase })
     }).then(async response => {
         const data = await response.json();
         // check for error response
