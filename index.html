@@ -24,6 +24,7 @@
       <h1><a href="/">Cloak</a></h1>
       <p>🔑 Securely encrypt your secret text and generate a link to share with other recipients.</p>
     </header>
+
     <div class="encrypt">
       <form method="post" id="encrypt-form">
         <div class="input">
@@ -76,7 +77,8 @@
       <h3>✍️ How it works</h3>
       <ul>
         <li>The message is encrypted in client side using <a
-            href="https://nacl.cr.yp.to/secretbox.html">XSalsa20Poly1305</a> authenticated encryption cipher.</li>
+            href="https://libsodium.gitbook.io/doc/advanced/stream_ciphers/xsalsa20">XSalsa20Poly1305</a> authenticated
+          encryption cipher.</li>
         <li>A unique key is generated to encrypt the message. This key is <b>never</b> sent to the backend server.</li>
         <li>The encrypted message packet is stored in the backend with a unique UUID.</li>
         <li>A shareable link (<code>/share/{uuid}#{key}</code>) is generated which contains the UUID for the encrypted
@@ -86,13 +88,11 @@
         <li>The encrypted message is only valid until the user-defined TTL expires or it has been accessed until the
           access count has reached the maximum limit.</li>
       </ul>
-
       <p><b>TL; DR</b>: The key used to encrypt the secret text is never stored in the backend. Only the recipient with
         the
         link can decrypt the message.</p>
       <a href="https://github.com/mr-karan/cloak" target="_blank" rel="noopener noreferrer">View the source</a>
     </div>
-
 
   </section>
   <script src="/assets/script.js"></script>
