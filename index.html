@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Cloak | Securely send sensitive text</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
   <meta name="description" content="Encrypt sensitive text like passwords, API tokens or anything secret">
   <meta name="author" content="Karan Sharma">
   <meta name="keywords" content="secret,password,token,share">
@@ -21,7 +22,7 @@
   <section class="container">
     <header>
       <h1><a href="/">Cloak</a></h1>
-      <p>🔑 Securely encrypt your secret text and generate a link to share.</p>
+      <p>🔑 Securely encrypt your secret text and generate a link to share with other recipients.</p>
     </header>
     <div class="encrypt">
       <form method="post" id="encrypt-form">
@@ -32,10 +33,10 @@
             <div class="field">
               <label for="expiry">Expiry</label>
               <select id="expiry" name="expiry">
-                <option default value=3600>1 hour</option>
-                <option default value=21600>6 hours</option>
-                <option default value=43200>12 hours</option>
-                <option default value=86400>1 day</option>
+                <option selected value=3600>1 hour</option>
+                <option value=21600>6 hours</option>
+                <option value=43200>12 hours</option>
+                <option value=86400>1 day</option>
               </select>
             </div>
             <div class="field">
@@ -63,7 +64,7 @@
       <div class="secret-result hidden">
         <textarea readonly id="view-plaintext"></textarea>
         <button onclick="copy('#view-plaintext')">Copy</button>
-        <br />
+        <br>
         <p class="info"></p>
       </div>
       <div class="error hidden">
@@ -77,13 +78,18 @@
         <li>The message is encrypted in client side using <a
             href="https://nacl.cr.yp.to/secretbox.html">XSalsa20Poly1305</a> authenticated encryption cipher.</li>
         <li>A unique key is generated to encrypt the message. This key is <b>never</b> sent to the backend server.</li>
-        <li>The encrypted message packet is stored in backend with a unique UUID.</li>
-        <li>A shareable link is generated which contains the UUID for the encrypted message. The secret key is a part of
-          this URL as a hash parameter which ensures that the backend server never receives it.
+        <li>The encrypted message packet is stored in the backend with a unique UUID.</li>
+        <li>A shareable link (<code>/share/{uuid}#{key}</code>) is generated which contains the UUID for the encrypted
+          message. The secret key is part of
+          this URL as a hash parameter, ensuring that the backend server never receives it.
         </li>
-        <li>The encrypted message is only valid until the user-defined TTL expires or it has been accessed till the
-          access count has reached the max limit.</li>
+        <li>The encrypted message is only valid until the user-defined TTL expires or it has been accessed until the
+          access count has reached the maximum limit.</li>
       </ul>
+
+      <p><b>TL; DR</b>: The key used to encrypt the secret text is never stored in the backend. Only the recipient with
+        the
+        link can decrypt the message.</p>
       <a href="https://github.com/mr-karan/cloak" target="_blank" rel="noopener noreferrer">View the source</a>
     </div>
 
