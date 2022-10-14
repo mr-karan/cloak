@@ -23,9 +23,6 @@ func (enc *EncryptPayload) Validate() error {
 	if enc.Expiry > 86400*7 {
 		return fmt.Errorf("expiry exceeds the max allowed limit")
 	}
-	if len(enc.Message) > 99999 {
-		return fmt.Errorf("message exceeds the max allowed length")
-	}
 	if enc.AccessCount > 30 {
 		return fmt.Errorf("access_count exceeds the max allowed limit")
 	}
