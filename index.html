@@ -105,6 +105,8 @@
           message. The secret key is part of
           this URL as a hash parameter, ensuring that the backend server never receives it.
         </li>
+        <li>An additional passphrase is set for creating and opening links, which ensures that only designated
+          recipients can open the link.</li>
         <li>The encrypted message is only valid until the user-defined TTL expires or it has been accessed until the
           access count has reached the maximum limit.</li>
       </ul>

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type EncryptPayload struct {
@@ -112,6 +113,15 @@ func handleEncrypt(w http.ResponseWriter, r *http.Request) {
 		payload.AccessCount = 1
 	}
 
+	// bcrypt the passphrase.
+	hashPass, err := bcrypt.GenerateFromPassword([]byte(payload.Passphrase), bcrypt.DefaultCost)
+	if err != nil {
+		lo.Printf("error bcrypting passphrase: %v\n", err)
+		sendErrorResponse(w, "Error storing payload", http.StatusInternalServerError, nil)
+		return
+	}
+	payload.Passphrase = string(hashPass)
+
 	// Generate a UUID and store the encrypted message in Redis.
 	uuid := uuid.New()
 	err = app.storePayload(uuid.String(), payload)
@@ -161,7 +171,7 @@ func handleLookup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Check if passphrase is valid.
-	if data.Passphrase != payload.Passphrase {
+	if hashErr := bcrypt.CompareHashAndPassword([]byte(data.Passphrase), []byte(payload.Passphrase)); hashErr != nil {
 		sendErrorResponse(w, "Incorrect passphrase", http.StatusBadRequest, nil)
 		return
 	}
