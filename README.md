@@ -6,6 +6,8 @@ The key to decrypt is never stored with the backend, ensuring that only the reci
 
 Visit https://cloak.mrkaran.dev to use.
 
+![](./docs/screenshot.png)
+
 ## Self Hosting
 
 See [docker-compose.yml](./docker-compose.yml) for an example.
